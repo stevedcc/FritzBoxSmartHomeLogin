@@ -11,20 +11,20 @@ using System.Xml;
 
 namespace SessionID
 {
-    public record FritzAddress
+    public record FritzBoxAddress
     {
         private readonly string _scheme;
         private readonly string _host;
         public virtual string Url => $"{_scheme}://{_host}";
 
-        public FritzAddress(string scheme, string host)
+        public FritzBoxAddress(string scheme, string host)
         {
             _scheme = scheme;
             _host = host;
         }
     }
 
-    public record FritzHomeAutomationCommand : FritzAddress
+    public record FritzBoxHomeAutomationCommand : FritzBoxAddress
     {
         private readonly string _commandName;
         private readonly string _ain;
@@ -32,8 +32,8 @@ namespace SessionID
         
         public override string Url => $"{base.Url}/webservices/homeautoswitch.lua?{_ain}{_commandName}{_sid}";
 
-        public FritzHomeAutomationCommand(FritzAddress fritzAddress, string sid, string commandName, string ain = "")
-            : base(fritzAddress)
+        public FritzBoxHomeAutomationCommand(FritzBoxAddress fritzBoxAddress, string sid, string commandName, string ain = "")
+            : base(fritzBoxAddress)
         {
             _sid = $"sid={sid}";
             _commandName = $"switchcmd={commandName}&";
@@ -41,10 +41,10 @@ namespace SessionID
         }
     }
 
-    public class FritzLogin
+    public class FritzBoxLogin
     {
         private readonly HttpClient _httpClient;
-        private readonly FritzAddress _fritzAddress;
+        private readonly FritzBoxAddress _fritzBoxAddress;
         private readonly string _path;
         
         private string _sid;
@@ -81,12 +81,12 @@ namespace SessionID
             }
         }
 
-        private string Url => $"{_fritzAddress.Url}/{_path}{UserName}{Sid}{Response}";
+        private string Url => $"{_fritzBoxAddress.Url}/{_path}{UserName}{Sid}{Response}";
 
-        public FritzLogin(HttpClient httpClient, FritzAddress fritzAddress, string path, string userName, string password)
+        public FritzBoxLogin(HttpClient httpClient, FritzBoxAddress fritzBoxAddress, string path, string userName, string password)
         {
             _httpClient = httpClient;
-            _fritzAddress = fritzAddress;
+            _fritzBoxAddress = fritzBoxAddress;
            
            _path = path;
            UserName = userName;
@@ -258,7 +258,7 @@ namespace SessionID
 
         static async Task Main()
         {
-            var fritzAdress = new FritzAddress("http", "fritz.box");
+            var fritzBoxAddress = new FritzBoxAddress("http", "fritz.box");
 
             Console.WriteLine("Enter User name for the FritzBox.  Leave empty to use the first user from the login xml.");
             var username = Utils.GetStringFromConsole(false);
@@ -266,10 +266,10 @@ namespace SessionID
             Console.WriteLine("Enter password");
             var password = Utils.GetStringFromConsole(true);
 
-            var loginData = new FritzLogin(HttpClient, fritzAdress, "login_sid.lua", username, password);
+            var loginData = new FritzBoxLogin(HttpClient, fritzBoxAddress, "login_sid.lua", username, password);
             var sid = await loginData.GetSessionIdAsync();
 
-            var commandData = new FritzHomeAutomationCommand(fritzAdress, sid, "getdevicelistinfos");
+            var commandData = new FritzBoxHomeAutomationCommand(fritzBoxAddress, sid, "getdevicelistinfos");
             await ReadDevices(HttpClient, commandData.Url);
         }
 
