@@ -24,7 +24,7 @@ namespace SessionID
         }
     }
 
-    public record Command : FritzAddress
+    public record FritzHomeAutomationCommand : FritzAddress
     {
         private readonly string _commandName;
         private readonly string _ain;
@@ -32,12 +32,12 @@ namespace SessionID
         
         public override string Url => $"{base.Url}/webservices/homeautoswitch.lua?{_ain}{_commandName}{_sid}";
 
-        public Command(FritzAddress fritzAddress, string sid, string commandName, string ain = "")
+        public FritzHomeAutomationCommand(FritzAddress fritzAddress, string sid, string commandName, string ain = "")
             : base(fritzAddress)
         {
             _sid = $"sid={sid}";
             _commandName = $"switchcmd={commandName}&";
-            _ain = string.IsNullOrEmpty(ain) ? String.Empty : $"ain={ain}&";
+            _ain = string.IsNullOrEmpty(ain) ? string.Empty : $"ain={ain}&";
         }
     }
 
@@ -266,7 +266,7 @@ namespace SessionID
             var loginData = new FritzLogin(HttpClient, fritzAdress, "login_sid.lua", username, password);
             var sid = await loginData.GetSessionIdAsync();
 
-            var commandData = new Command(fritzAdress, sid, "getdevicelistinfos");
+            var commandData = new FritzHomeAutomationCommand(fritzAdress, sid, "getdevicelistinfos");
             await ReadDevices(HttpClient, commandData.Url);
         }
 
