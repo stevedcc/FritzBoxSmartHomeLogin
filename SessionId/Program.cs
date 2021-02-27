@@ -111,6 +111,7 @@ namespace SessionID
             return await Utils.ReadXmlFromUrl(_httpClient, Url);
         }
         
+        // based on c# example in https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/Session-ID_deutsch_13Nov18.pdf
         private async Task<string> LoginAsync()
         {
             var unauthenticatedXml = await Utils.ReadXmlFromUrl(_httpClient, Url);
@@ -147,11 +148,13 @@ namespace SessionID
             return sid;
         }
         
+        // from c# example in https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/Session-ID_deutsch_13Nov18.pdf
         private string GetResponse(string challenge, string password)
         {
             return $"{challenge}-{GetMD5Hash(challenge + "-" + password)}";
         }
         
+        // based on c# example in https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/Session-ID_deutsch_13Nov18.pdf
         private string GetMD5Hash(string input)
         {
             var md5Hasher = MD5.Create();
